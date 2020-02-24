@@ -1,44 +1,62 @@
-import React, { useState } from 'react';
+import React, { useReducer } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 import ColorCounter from '../components/ColorCounter';
 
 const COLOR_INCREMENT = 15;
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'change_red':
+      return state.red + action.payload > 255 || state.red + action.payload < 0
+      ? state
+      : {...state, red: state.red + action.payload};
+    case 'change_green':
+      return state.green + action.payload > 255 || state.green + action.payload < 0
+        ? state
+        : {...state, green: state.green + action.payload};
+    case 'change_blue':
+      return state.blue + action.payload > 255 || state.blue + action.payload < 0
+        ? state
+        : {...state, blue: state.blue + action.payload};
+    default:
+      return state;
+  }
+}
+
 const SquareScreen = () => {
   const defaultColors = { red: 0, green: 0, blue: 0 };
-  const [colors, setColors] = useState(defaultColors);
-
-  const setColor = (color, change) => {
-    const sum = colors[color] + change;
-    if (sum > 255 || sum < 0) {
-      return;
-    }
-    setColors({
-      ...colors,
-      [color]: sum
-    })
-  }
-
-  const { red, green, blue } = colors;
+  const [state, dispatch] = useReducer(reducer, defaultColors);
+  const { red, green, blue } = state;
 
   return (
     <View>
       <ColorCounter
-        onIncrease={() => setColor('red', COLOR_INCREMENT )}
-        onDecrease={() => setColor('red', -1 * COLOR_INCREMENT)}
+        onIncrease={() =>
+          dispatch({type: 'change_red', payload: COLOR_INCREMENT})
+        }
+        onDecrease={() =>
+          dispatch({type: 'change_red', payload: -1 * COLOR_INCREMENT})
+        }
         color="Red"
       />
       <ColorCounter
-        onIncrease={() => setColor('blue', COLOR_INCREMENT )}
-        onDecrease={() => setColor('blue', -1 * COLOR_INCREMENT)}
+        onIncrease={() =>
+          dispatch({type: 'change_blue', payload: COLOR_INCREMENT})
+        }
+        onDecrease={() =>
+          dispatch({type: 'change_blue', payload: -1 * COLOR_INCREMENT})
+        }
         color="Blue"
       />
       <ColorCounter
-        onIncrease={() => setColor('green', COLOR_INCREMENT )}
-        onDecrease={() => setColor('green', -1 * COLOR_INCREMENT)}
+        onIncrease={() =>
+          dispatch({type: 'change_green', payload: COLOR_INCREMENT})
+        }
+        onDecrease={() =>
+          dispatch({type: 'change_green', payload: -1 * COLOR_INCREMENT})
+        }
         color="Green"
       />
-      <Button onPress={() => setColors(defaultColors)} title="Reset colors"/>
       <View style={{
         height: 150,
         width: 150,
